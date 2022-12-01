@@ -27,8 +27,6 @@ class UserProcessor implements ProcessorInterface
         }
 
         if($operation->getName() === 'user-update') {
-            $data->setPassword($this->passwordHasher->hashPassword($data, $data->getPlainPassword() ?? $data->getPassword()));
-            $data->eraseCredentials();
             $data->setUpdatedAt(new \DateTimeImmutable());
         }
 

@@ -134,6 +134,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'read_add_groupe',
         'update',
         'admin_get_users',
+        'get_groupes_users',
     ])]
     private ?string $firstname = null;
 
@@ -146,6 +147,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'read_add_groupe',
         'update',
         'admin_get_users',
+        'get_groupes_users',
     ])]
     private ?string $lastname = null;
 
