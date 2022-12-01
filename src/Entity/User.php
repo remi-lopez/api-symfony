@@ -40,7 +40,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             openapiContext: [
                 'summary' => 'Private Endpoint - User : user\'s informations',
             ],
-            security: 'is_granted("ROLE_ADMIN") or is_granted("ROLE_USER")',
+            security: '(object == user and previous_object == user) or is_granted("ROLE_ADMIN")',
             securityMessage: 'ACCESS DENIED : You can\'t access to this URL if you\'re not logged in.',
             normalizationContext: ['groups' => ['get_user']],
         ),

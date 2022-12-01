@@ -67,6 +67,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['admin_get_modify']],
             denormalizationContext: ['groups' => ['admin_modify_groupe']],
         ),
+        new Put(
+            openapiContext: [
+                'summary' => 'Private Endpoint - Admin : modify users in an existing group',
+            ],
+            name: 'groupe-modify-users',
+            uriTemplate: '/groupes/{id}/modify/users',
+            processor: GroupeProcessor::class,
+            security: 'is_granted("ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
+            normalizationContext: ['groups' => ['admin_get_modify_groupe_users']],
+            denormalizationContext: ['groups' => ['admin_modify_groupe_users']],
+        ),
         new Delete(
             openapiContext: [
                 'summary' => 'Private Endpoint - Admin : remove an existing group',
@@ -94,6 +106,7 @@ class Groupe
         'admin_add_groupe',
         'admin_get_add',
         'admin_modify_groupe',
+        'admin_get_modify_groupe_users',
         'admin_get_modify',
     ])]
     private ?string $name = null;
@@ -106,7 +119,11 @@ class Groupe
 
     #[ORM\OneToMany(mappedBy: 'groupes', targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
-    #[Groups(['get_groupes_users'])]
+    #[Groups([
+        'get_groupes_users',
+        'admin_modify_groupe_users',
+        'admin_get_modify_groupe_users',
+    ])]
     private Collection $users;
 
     public function __construct()
