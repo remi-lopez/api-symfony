@@ -25,69 +25,57 @@ use Symfony\Component\Serializer\Annotation\Groups;
             ],
             name: 'groupes', 
             uriTemplate: '/groupes', 
-            normalizationContext: [
-                'groups' => ['groupe:get_collection:read'],
-            ],
+            normalizationContext: ['groups' => ['get_groupes']],
         ),
         new GetCollection(
             openapiContext: [
-                'summary' => 'Public Endpoint : get one groups names and users in it (firsname, lastname)',
+                'summary' => 'Public Endpoint : get groups names and users informations',
             ],
             name: 'groupe-users', 
             uriTemplate: '/groupes/users', 
             normalizationContext: [
-                'groups' => ['groupeusers:get_collection:read'],
+                'groups' => ['get_groupes_users'],
             ],
         ),
         new Get(
             openapiContext: [
                 'summary' => 'Public Endpoint : get one group name',
             ],
-            normalizationContext: [
-                'groups' => ['groupe:get:read'],
-            ],
+            normalizationContext: ['groups' => ['get_groupe']],
         ),
         new Post(
             openapiContext: [
                 'summary' => 'Private Endpoint - Admin : create a new group',
             ],
             name: 'groupe-create',
-            processor: GroupeProcessor::class,
             uriTemplate: '/groupes/create',
-            normalizationContext: [
-                'groups' => ['groupe:post:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['groupe:post:write'],
-            ],
+            processor: GroupeProcessor::class,
+            security: 'is_granted("ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
+            normalizationContext: ['groups' => ['admin_get_add']],
+            denormalizationContext: ['groups' => ['admin_add_groupe']],
         ),
         new Put(
             openapiContext: [
                 'summary' => 'Private Endpoint - Admin : modify an existing group',
             ],
             name: 'groupe-modify',
-            processor: GroupeProcessor::class,
             uriTemplate: '/groupes/{id}/modify',
-            normalizationContext: [
-                'groups' => ['groupe:put:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['groupe:put:write'],
-            ],
+            processor: GroupeProcessor::class,
+            security: 'is_granted("ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
+            normalizationContext: ['groups' => ['admin_get_modify']],
+            denormalizationContext: ['groups' => ['admin_modify_groupe']],
         ),
         new Delete(
             openapiContext: [
                 'summary' => 'Private Endpoint - Admin : remove an existing group',
             ],
-            name: 'groupe-remove', 
-            processor: GroupeProcessor::class,
+            name: 'groupe-remove',
             uriTemplate: '/groupes/{id}/remove',
-            normalizationContext: [
-                'groups' => ['groupe:delete:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['groupe:delete:write'],
-            ],
+            processor: GroupeProcessor::class,
+            security: 'is_granted("ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
         ),
     ]
 )]
@@ -100,30 +88,25 @@ class Groupe
 
     #[ORM\Column(length: 255)]
     #[Groups([
-        'groupe:post:write', 
-        'groupe:post:read', 
-        'groupe:put:read', 
-        'groupe:put:write', 
-        'groupe:get:read', 
-        'groupe:get_collection:read', 
-        'groupeusers:get_collection:read'
+        'get_groupe',
+        'get_groupes',
+        'get_groupes_users',
+        'admin_add_groupe',
+        'admin_get_add',
+        'admin_modify_groupe',
+        'admin_get_modify',
     ])]
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Groups([
-        'groupe:post:write',
-        'groupe:post:read',
-    ])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['groupe:put:write'])]
     private ?\DateTimeImmutable $updated_at = null;
 
     #[ORM\OneToMany(mappedBy: 'groupes', targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
-    #[Groups(['groupeusers:get_collection:read'])]
+    #[Groups(['get_groupes_users'])]
     private Collection $users;
 
     public function __construct()

@@ -24,9 +24,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             openapiContext: [
                 'summary' => 'Public Endpoint : get user\'s firstname and lastname',
             ],
-            normalizationContext: [
-                'groups' => ['user:get_collection:read'],
-            ],
+            normalizationContext: ['groups' => ['get_users']],
         ),
         new GetCollection(
             openapiContext: [
@@ -36,18 +34,15 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             uriTemplate: '/users/all',
             security: 'is_granted("ROLE_ADMIN")',
             securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
-            normalizationContext: [
-                'groups' => ['adminuser:get_collection:read'],
-            ],
+            normalizationContext: ['groups' => ['admin_get_users']],
         ),
         new Get(
-            security: 'is_granted("ROLE_USER" or "ROLE_ADMIN")',
             openapiContext: [
                 'summary' => 'Private Endpoint - User : user\'s informations',
             ],
-            normalizationContext: [
-                'groups' => ['user:get:read'],
-            ],
+            security: 'is_granted("ROLE_ADMIN") or is_granted("ROLE_USER")',
+            securityMessage: 'ACCESS DENIED : You can\'t access to this URL if you\'re not logged in.',
+            normalizationContext: ['groups' => ['get_user']],
         ),
         new Post(
             openapiContext: [
@@ -56,12 +51,8 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             name: 'register', 
             uriTemplate: '/register',
             processor: UserProcessor::class,
-            normalizationContext: [
-                'groups' => ['register:post:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['register:post:write'],
-            ],
+            normalizationContext: ['groups' => ['read_register']],
+            denormalizationContext: ['groups' => ['write_register']],
         ),
         new Post(
             openapiContext: [
@@ -69,14 +60,10 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             ],
             name: 'user-addgroupe', 
             uriTemplate: '/users/{id}/addgroupe',
-            security: 'is_granted("ROLE_USER" or "ROLE_ADMIN")',
+            security: '(object == user and previous_object == user) or is_granted("ROLE_ADMIN")',
             securityMessage: 'ACCESS DENIED : You can\'t access to this URL.',
-            normalizationContext: [
-                'groups' => ['addgroupe:post:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['addgroupe:post:write'],
-            ],
+            normalizationContext: ['groups' => ['read_add_groupe']],
+            denormalizationContext: ['groups' => ['add_groupe']],
         ),
         new Put(
             openapiContext: [
@@ -85,14 +72,10 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             name: 'user-update',
             processor: UserProcessor::class,
             uriTemplate: '/users/{id}/update',
-            security: 'is_granted("ROLE_USER" or "ROLE_ADMIN")',
+            security: '(object == user and previous_object == user) or is_granted("ROLE_ADMIN")',
             securityMessage: 'ACCESS DENIED : You can\'t access to this URL.',
-            normalizationContext: [
-                'groups' => ['user:put:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['user:put:write'],
-            ],
+            normalizationContext: ['groups' => ['read_update']],
+            denormalizationContext: ['groups' => ['update']],
         ),
         new Delete(
             openapiContext: [
@@ -103,12 +86,6 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             uriTemplate: '/users/{id}/remove',
             security: 'is_granted("ROLE_ADMIN")',
             securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
-            normalizationContext: [
-                'groups' => ['user:delete:read'],
-            ],
-            denormalizationContext: [
-                'groups' => ['user:delete:write'],
-            ],
         )
     ]
 )]
@@ -121,17 +98,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true)]
     #[Groups([
-        'register:post:write', 
-        'register:post:read',
-        'user:put:write', 
-        'adminuser:get_collection:read',
-        'user:get:read'
+        'get_user',
+        'write_register',
+        'read_register',
+        'update',
+        'admin_get_users',
     ])]
     private ?string $email = null;
 
     #[ORM\Column]
     #[Groups([
-        'adminuser:get_collection:read',
+        'admin_get_users',
     ])]
     private array $roles = [];
 
@@ -143,42 +120,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[SerializedName('password')]
     #[Groups([
-        'register:post:write',
-        'update:put:write',
+        'write_register',
+        'update',
     ])]
     private $plainPassword;
 
     #[ORM\Column(length: 255)]
     #[Groups([
-        'register:post:write', 
-        'register:post:read', 
-        'update:put:write',
-        'user:get_collection:read',
-        'adminuser:get_collection:read',
-        'user:get:read'
+        'get_user',
+        'get_users',
+        'write_register',
+        'read_register',
+        'read_add_groupe',
+        'update',
+        'admin_get_users',
     ])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
     #[Groups([
-        'register:post:write', 
-        'register:post:read',
-        'update:put:write',
-        'user:get_collection:read',
-        'adminuser:get_collection:read',
-        'user:get:read'
+        'get_user',
+        'get_users',
+        'write_register',
+        'read_register',
+        'read_add_groupe',
+        'update',
+        'admin_get_users',
     ])]
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(onDelete: "SET NULL")]
     #[Groups([
-        'register:post:write', 
-        'register:post:read',
-        'update:put:write', 
-        'addgroupe:post:write',
-        'adminuser:get_collection:read',
-        'user:get:read', 
+        'get_user',
+        'write_register',
+        'read_register',
+        'update',
+        'add_groupe',
+        'read_add_groupe',
+        'admin_get_users',
     ])]
     private ?Groupe $groupes = null;
 
