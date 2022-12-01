@@ -19,7 +19,8 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-        # OpenApi\JwtDecorator:
-        #     decorates: 'api_platform.openapi.factory'
-        #     arguments: ['@.inner']
+
+    App\OpenApi\JWTDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments: ['@.inner']
 

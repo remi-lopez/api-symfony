@@ -28,18 +28,6 @@ security:
             pattern:   ^/api
             stateless: true
             jwt: ~
-        # api:
-        #     pattern: ^/api/login
-        #     stateless: true
-        #     provider: app_user_provider
-        #     jwt: ~
-        # main:
-        #     json_login:
-        #         check_path: /login_check
-        #         username_path: email
-        #         password_path: password
-        #         success_handler: lexik_jwt_authentication.handler.authentication_success
-        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
         main:
             lazy: true
             provider: app_user_provider
@@ -49,11 +37,11 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         # - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/users, roles: PUBLIC_ACCESS }
-        - { path: ^/api/groupes, roles: PUBLIC_ACCESS }
-        - { path: ^/api/groupes/users, roles: PUBLIC_ACCESS }
-        - { path: ^/api/groupes/<int>/modify, roles: IS_AUTHENTICATED_FULLY }
+        # - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        # - { path: ^/api/users, roles: PUBLIC_ACCESS }
+        # - { path: ^/api/groupes, roles: PUBLIC_ACCESS }
+        # - { path: ^/api/groupes/users, roles: PUBLIC_ACCESS }
+        # - { path: ^/api/groupes/<int>/modify, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

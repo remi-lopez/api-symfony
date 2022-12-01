@@ -30,7 +30,7 @@ final class JwtDecorator implements OpenApiFactoryInterface
     $schemas['Credentials'] = new \ArrayObject([
       'type' => 'object',
       'properties' => [
-        'email' => [
+        'username' => [
           'type' => 'string',
           'example' => 'johndoe@example.com',
         ],
@@ -65,7 +65,7 @@ final class JwtDecorator implements OpenApiFactoryInterface
             ],
           ],
         ],
-        summary: 'Get JWT token to login.',
+        summary: 'Public Endpoint : get JWT token to login.',
         requestBody: new Model\RequestBody(
           description: 'Generate new JWT Token',
           content: new \ArrayObject([

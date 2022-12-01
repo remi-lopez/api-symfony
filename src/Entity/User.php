@@ -34,11 +34,14 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             ],
             name: 'admin-users',
             uriTemplate: '/users/all',
+            security: 'is_granted("ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
             normalizationContext: [
                 'groups' => ['adminuser:get_collection:read'],
             ],
         ),
         new Get(
+            security: 'is_granted("ROLE_USER" or "ROLE_ADMIN")',
             openapiContext: [
                 'summary' => 'Private Endpoint - User : user\'s informations',
             ],
@@ -60,25 +63,14 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
                 'groups' => ['register:post:write'],
             ],
         ),
-        // new Post(
-        //     openapiContext: [
-        //         'summary' => 'Public Endpoint - Login : user\'s email and password',
-        //     ],
-        //     name: 'login', 
-        //     uriTemplate: '/login', 
-        //     normalizationContext: [
-        //         'groups' => ['login:post:read'],
-        //     ],
-        //     denormalizationContext: [
-        //         'groups' => ['login:post:write'],
-        //     ],
-        // ),
         new Post(
             openapiContext: [
                 'summary' => 'Private Endpoint - User : add group for one user',
             ],
             name: 'user-addgroupe', 
-            uriTemplate: '/users/{id}/addgroupe', 
+            uriTemplate: '/users/{id}/addgroupe',
+            security: 'is_granted("ROLE_USER" or "ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : You can\'t access to this URL.',
             normalizationContext: [
                 'groups' => ['addgroupe:post:read'],
             ],
@@ -92,7 +84,9 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             ],
             name: 'user-update',
             processor: UserProcessor::class,
-            uriTemplate: '/users/{id}/update', 
+            uriTemplate: '/users/{id}/update',
+            security: 'is_granted("ROLE_USER" or "ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : You can\'t access to this URL.',
             normalizationContext: [
                 'groups' => ['user:put:read'],
             ],
@@ -107,6 +101,8 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
             name: 'user-remove',
             processor: UserProcessor::class,
             uriTemplate: '/users/{id}/remove',
+            security: 'is_granted("ROLE_ADMIN")',
+            securityMessage: 'ACCESS DENIED : Only Admin can access to this URL.',
             normalizationContext: [
                 'groups' => ['user:delete:read'],
             ],
@@ -126,8 +122,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     #[Groups([
         'register:post:write', 
-        'register:post:read', 
-        // 'login:post:write', 
+        'register:post:read',
         'user:put:write', 
         'adminuser:get_collection:read',
         'user:get:read'
@@ -148,8 +143,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[SerializedName('password')]
     #[Groups([
-        'register:post:write', 
-        // 'login:post:write',
+        'register:post:write',
         'update:put:write',
     ])]
     private $plainPassword;
